@@ -6,7 +6,7 @@ latest:
     just _compile $id
 
 # Interactively pick an invoice and generate a PDF
-print:
+pick:
     #!/usr/bin/env nu
     use {{ justfile_dir() }}/nucash
     let id = nucash invoice list | input list --fuzzy | get id

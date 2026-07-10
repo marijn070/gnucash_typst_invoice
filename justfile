@@ -1,0 +1,12 @@
+latest:
+    #!/usr/bin/env nu
+    use {{ justfile_dir() }}/nucash
+    let invoice_data = nucash invoice get
+    let company_info = nucash company info
+
+    $invoice_data | to toml | nucash date-only | save invoice/data/invoice.toml -f
+    $company_info | to toml | save invoice/data/company_info.toml -f
+
+    let pdf_name = $"Factuur_($company_info.name | str replace ' ' '_')_($invoice_data.date_posted | format date "%Y-%m-%d").pdf"
+
+    typst compile invoice/invoice.typ ('out' | path join $pdf_name)

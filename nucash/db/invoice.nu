@@ -1,43 +1,12 @@
 use ../utils.nu get-date
 
+const SQL_DIR = path self | path dirname
+
 export def get-invoices [db] {
-    let invoices = $db | query db "
-            SELECT
-                i.guid,
-                i.id,
-                i.date_opened,
-                i.date_posted,
-                i.notes,
+    let sql_file = $SQL_DIR | path join "sql/invoice.sql"
+    let sql = open $sql_file
 
-                c.name AS customer_name,
-                c.addr_addr1,
-                c.addr_addr2,
-                c.addr_addr3,
-                c.addr_addr4,
-                c.addr_phone,
-                c.addr_email,
-
-                e.date,
-                e.description,
-                e.action,
-
-                e.quantity_num * 1.0 / e.quantity_denom AS quantity,
-                e.i_price_num * 1.0 / e.i_price_denom AS unit_price,
-
-                (e.quantity_num * 1.0 / e.quantity_denom)
-                * (e.i_price_num * 1.0 / e.i_price_denom) AS amount,
-
-                s.value_num * 1.0 / s.value_denom AS total
-            FROM invoices i
-            JOIN customers c
-                ON c.guid = i.owner_guid
-            LEFT JOIN entries e
-                ON e.invoice = i.guid
-            LEFT JOIN splits s
-                ON s.tx_guid = i.post_txn
-               AND s.account_guid = i.post_acc
-            ORDER BY i.date_opened DESC, e.date;
-        "
+    let invoices = $db | query db $sql
 
     $invoices
     | group-by guid

@@ -1,4 +1,5 @@
 #import "@preview/cades:0.3.1": qr-code
+#import "@preview/datify:1.3.0": display-date, custom-date-format
 #let data = toml("data/invoice.toml")
 #let company_info = toml("data/company_info.toml")
 
@@ -13,7 +14,7 @@
   align: horizon,
 )
 #show table: set text(features: ("tnum",))
-#set text(size: 10pt, font: "Iosevka Aile")
+#set text(size: 10pt, font: "Iosevka Aile", lang: "nl")
 
 #show title: set text(size: 2em)
 
@@ -85,7 +86,7 @@
   align: (right, left),
   gutter: (10pt, 20pt),
   [Factuurnummer:], strong[#data.id],
-  [Factuurdatum:], strong[#data.date_posted.display()],
+  [Factuurdatum:], strong[#display-date(data.date_posted)]
 )
 
 #v(5%)
@@ -129,7 +130,7 @@
     ..data
       .entries
       .map(entry => (
-        [#entry.date.display()],
+        [#entry.date.display("[year]-[month repr:numerical padding:zero]-[day padding:zero]")],
         [#entry.description],
         [#entry.quantity],
         [#format_currency(entry.unit_price)],
@@ -165,7 +166,9 @@
 
 #align(left)[
   _Gelieve het bedrag voor
-  #strong[#{ data.date_posted + duration(weeks: 4) }.display() ]
+  #strong[
+    #custom-date-format(data.date_posted + duration(weeks: 4), pattern: "d MMMM", lang: "nl")
+  ]
   over te maken naar de volgende bankrekening. \
   U kunt de QR-code scannen met uw bankapp._
 

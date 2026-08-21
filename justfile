@@ -2,22 +2,22 @@
 latest:
     #!/usr/bin/env nu
     use {{ justfile_dir() }}/nucash
-    let id = nucash invoice get | get id
+    let id = nucash invoice latest | get id
     just _compile $id
 
 # Interactively pick an invoice and generate a PDF
 pick:
     #!/usr/bin/env nu
     use {{ justfile_dir() }}/nucash
-    let id = nucash invoice list | input list --fuzzy | get id
+    let id = nucash invoice pick | get id
     just _compile $id
 
 [private]
 _compile id:
     #!/usr/bin/env nu
     use {{ justfile_dir() }}/nucash
-    let invoice_data = nucash invoice get --id "{{ id }}"
-    let company_info = nucash company info
+    let invoice_data = nucash invoice get "{{ id }}"
+    let company_info = nucash company-info
 
     mkdir invoice/data
     $invoice_data | to toml | nucash date-only | save invoice/data/invoice.toml -f

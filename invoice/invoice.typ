@@ -1,9 +1,17 @@
+// ============================================================================
+// 1. Imports & data — load packages and the invoice + company data files.
+// ============================================================================
+
 #import "@preview/cades:0.3.1": qr-code
 #import "@preview/datify:1.3.0": display-date, custom-date-format
 #let data = toml("data/invoice.toml")
 #let company_info = toml("data/company_info.toml")
 
 
+
+// ============================================================================
+// 2. Document setup — global page, table, and text styling.
+// ============================================================================
 
 #set align(center)
 #set table.hline(stroke: 0.5pt + black)
@@ -20,10 +28,16 @@
 
 #title[Factuur]
 
+// ============================================================================
+// 3. Helper functions — reusable formatting and QR-code builders.
+// ============================================================================
+
+// Round a number to a fixed amount of decimals for currency display.
 #let format_currency(d, digits: 2) = {
   calc.round(decimal(d + .001), digits: digits)
 }
 
+// Group an IBAN into blocks of four characters for readability.
 #let pretty_iban(iban: str) = {
   let cleaned = iban.replace(" ", "")
   let chunks = ()
@@ -36,6 +50,7 @@
   chunks.join(" ")
 }
 
+// Build the EPC QR payload (BCD standard) for a SEPA transfer.
 #let eqp-qr-data(
   name: none,
   iban: str,
@@ -67,6 +82,7 @@
   lines.join("\n")
 }
 
+// Renders the bank account box (owner + IBAN) shown next to the QR code.
 #let payment-info(height: 10%, name: str, iban: str) = align(horizon, rect(
   height: height,
   stroke: (top: 0.5pt, bottom: 0.5pt),
@@ -80,6 +96,10 @@
   ),
 ))
 
+// ============================================================================
+// 4. Invoice meta — number and posting date.
+// ============================================================================
+
 #grid(
   columns: 2,
   rows: 1pt,
@@ -91,8 +111,11 @@
 
 #v(5%)
 
+// ============================================================================
+// 5. Sender & recipient — customer (left) and company (right).
+// ============================================================================
+
 #block(width: 80%)[
-  // adresgegevens
   #columns(2)[
     #align(left)[
       #strong[#data.customer.name]
@@ -117,6 +140,10 @@
 
 
 #v(10%)
+
+// ============================================================================
+// 6. Line items — invoice rows and totals summary.
+// ============================================================================
 
 #block(width: 100%)[
 
@@ -164,6 +191,10 @@
 
 #v(5%)
 
+// ============================================================================
+// 7. Payment details — instructions, bank account box, and QR code.
+// ============================================================================
+
 #align(left)[
   _Gelieve het bedrag voor
   #strong[
@@ -195,4 +226,9 @@
 
 
 #v(10pt)
+
+// ============================================================================
+// 8. Closing — thank-you line.
+// ============================================================================
+
 #align(left)[_Bedankt voor de goede samenwerking._]

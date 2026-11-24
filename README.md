@@ -121,3 +121,17 @@ To make it permanent, add the `use` line to your `$nu.config-path` (usually `~/.
 With `nu` on `PATH`, run `uv run --with pgserver python tests/test_backends.py`. This creates a private temporary PostgreSQL server and SQLite book containing synthetic data. It checks backend parity, PostgreSQL read-only enforcement, and the SQLite override. Add `--pdf` with `just` and `typst` installed to test full PDF generation (Typst may need to fetch the template's pinned packages).
 
 The fixture does not certify compatibility with any particular migrated production book.
+
+### Prepare a local invoice email draft (optional)
+
+After rendering and reviewing an invoice, supply the intended recipient and
+message body explicitly:
+
+```sh
+python3 invoice/draft_email.py --pdf out/your-invoice.pdf --out out/draft.eml \
+  --to klant@example.com --subject 'Factuur 42' --body-file body.txt
+```
+
+The command attaches the PDF to a new local `.eml` with `X-Unsent: 1`. It does
+not contact a mail service or send anything. How a mail client opens `.eml`
+files varies; review the recipient, body and attachment before any manual send.

@@ -1,4 +1,4 @@
-use ../utils.nu get-date
+use ../utils.nu [get-date select-rows]
 
 const SQL_DIR = path self | path dirname
 
@@ -6,7 +6,7 @@ export def get-transactions [db] {
     let sql_file = $SQL_DIR | path join "sql/transaction.sql"
     let sql = open $sql_file
 
-    let rows = $db | query db $sql
+    let rows = select-rows $db $sql
 
     $rows
     | group-by guid

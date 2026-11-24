@@ -107,6 +107,9 @@ export def "invoice get" [
     if ($matches | is-empty) {
         error make {msg: $"No invoice found with id ($id)"}
     }
+    if ($matches | length) != 1 {
+        error make {msg: $"More than one invoice has id ($id); refusing to choose."}
+    }
     $matches | first
 }
 

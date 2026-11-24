@@ -62,7 +62,7 @@ def main():
                 for name in ('invoice', 'nucash'):
                     shutil.copytree(ROOT / name, copy / name, ignore=shutil.ignore_patterns('data'))
                 shutil.copy(ROOT / 'justfile', copy)
-                result = run('just', 'latest', env=postgres, cwd=copy, check=False)
+                result = run('just', 'render', env=dict(postgres, GNC_INVOICE_ID='101'), cwd=copy, check=False)
                 if result.returncode:
                     raise RuntimeError(result.stderr)
                 pdf = copy / 'out/Factuur_Fixture_Company_101_2026-11-12.pdf'

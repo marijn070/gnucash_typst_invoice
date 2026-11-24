@@ -135,3 +135,18 @@ python3 invoice/draft_email.py --pdf out/your-invoice.pdf --out out/draft.eml \
 The command attaches the PDF to a new local `.eml` with `X-Unsent: 1`. It does
 not contact a mail service or send anything. How a mail client opens `.eml`
 files varies; review the recipient, body and attachment before any manual send.
+
+### Exact invoice and editable mailbox draft
+
+Use `GNC_INVOICE_ID=101 just render` to render a specific posted invoice,
+not whichever invoice happens to be latest. Duplicate IDs are rejected.
+
+After preparing and reviewing the local `.eml`, optionally copy it to the
+confirmed IMAP Drafts folder with `python3 invoice/imap_draft.py --host
+HOST --folder INBOX.Drafts --draft-key invoice-101 --eml out/draft.eml`.
+Provide `INVOICE_IMAP_USER` and `INVOICE_IMAP_PASSWORD` through a protected
+runtime. The command uses IMAP with verified TLS, not SMTP. Run only one
+draft worker per mailbox. Reuse the same key if the response is lost;
+if a mail client has since edited the draft (and perhaps removed its
+custom key), inspect the folder manually before retrying. The local `.eml`
+remains available if IMAP is not configured.

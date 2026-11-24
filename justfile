@@ -12,6 +12,9 @@ pick:
     let id = nucash invoice pick | get id
     with-env {GNC_INVOICE_ID: $id} { ^just _compile }
 
+# Render the exact posted invoice named by GNC_INVOICE_ID.
+render: _compile
+
 [private]
 _compile:
     #!/usr/bin/env nu

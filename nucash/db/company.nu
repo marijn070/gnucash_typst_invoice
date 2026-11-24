@@ -1,20 +1,29 @@
+use ../utils.nu select-rows
+
 export def get-company-info [db] {
-    let company_name = $db.slots | where name == "options/Business/Company Name" | get string_val | first
-    let company_address = $db.slots | where name == "options/Business/Company Address" | get string_val | first
-    let contact_person = $db.slots | where name == "options/Business/Company Contact Person" | get string_val | first
-    let company_email = $db.slots | where name == "options/Business/Company Email Address" | get string_val | first
-    let phone_number = $db.slots | where name == "options/Business/Company Phone Number" | get string_val | first
-    let kvk = $db.slots | where name == "options/Business/Company ID" | get string_val | first
-    let tax_number = $db.slots | where name == "options/Tax/Tax Number" | get string_val | first
-    let bank_account = $db.slots | where name == "online_id" | get string_val | first
-    {
-        name: $company_name
-        address: $company_address
-        contact_person: $contact_person
-        company_email: $company_email
-        phone_number: $phone_number
-        tax_number: $tax_number
-        bank_account: $bank_account
-        kvk: $kvk
+    let rows = select-rows $db "SELECT obj_guid, name, string_val FROM slots WHERE string_val IS NOT NULL AND (name LIKE 'options/%' OR name = 'online_id')"
+    let bank_guid = $env.GNC_BANK_ACCOUNT_GUID? | default ""
+    let banks = $rows | where name == "online_id" | where {|row| $bank_guid == "" or $row.obj_guid == $bank_guid }
+    let bank_account = $banks | get string_val | uniq
+    if ($bank_account | length) != 1 or ($bank_account | first | str trim) == "" {
+        error make {msg: "Could not identify a unique payment account. Set GNC_BANK_ACCOUNT_GUID and check its online_id."}
     }
+    {
+        name: (required-slot $rows "options/Business/Company Name")
+        address: (required-slot $rows "options/Business/Company Address")
+        contact_person: (required-slot $rows "options/Business/Company Contact Person")
+        company_email: (required-slot $rows "options/Business/Company Email Address")
+        phone_number: (required-slot $rows "options/Business/Company Phone Number")
+        tax_number: (required-slot $rows "options/Tax/Tax Number")
+        bank_account: ($bank_account | first)
+        kvk: (required-slot $rows "options/Business/Company ID")
+    }
+}
+
+def required-slot [rows, name: string] {
+    let values = $rows | where name == $name | get string_val | uniq
+    if ($values | length) != 1 {
+        error make {msg: $"Missing or ambiguous company setting: ($name)"}
+    }
+    $values | first
 }

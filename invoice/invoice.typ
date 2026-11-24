@@ -179,7 +179,7 @@
       ),
       [Subtotaal: \ ],
       [#format_currency(data.subtotal) €],
-      [BTW 21%:],
+      [BTW:],
       [#format_currency(data.tax) €],
       table.hline(),
       table.cell(strong[Totaal:], fill: gray.lighten(70%)),
